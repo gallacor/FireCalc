@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel='stylesheet' href='static/styles.css'>
+    <meta charset="UTF-8">
+    <title>Fire Calculator</title>
+</head>
+<body>
+<button>Set Monetary Goal</button>
+<button>Set Time Goal</button>
+<!--url_for uses function name under route, not route name -->
+<form action="{{ url_for('provide_time') }}" method = "POST">
+    <fieldset>
+        <legend>Contributions</legend>
+            <p>
+                <input type="number" name="starting_value" id="starting_value">
+                <label for="starting_value">Starting Account Value</label>
+            </p>
+            <p>
+                <input type="number" name="monthly_cont" id="monthly_cont">
+                <label for="monthly_cont">Monthly Contribution</label>
+            </p>
+            <p>
+                <input type="number" name="additional_cont" id="additional_cont">
+                <label for="monthly_cont">Additional Contributions</label>
+            </p>
+    </fieldset>
+    <fieldset>
+        <legend>Goals and Assumptions</legend>
+            <p>
+                <input type="number" name="interest_rate" id="interest_rate">
+                <label for="interest_rate">Interest rate predicted</label>
+            </p>
+            <p>
+                <input type="number" name="goal_amount" id="goal_amount">
+                <label for="goal_amount">Goal Amount of Savings</label>
+                <select id="goal_type" name="goal_type">
+                    <option value="income">Yearly Income</option>
+                    <option value="lump_sum">Lump Sum</option>
+                </select>
+            </p>
+    </fieldset>
+    <button type="submit">Calculate My Time to Retirement</button>
+</form>
+</body>
+</html>

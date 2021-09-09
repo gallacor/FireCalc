@@ -1,0 +1,33 @@
+
+.container{
+    display: flex;
+    justify-content: space-around; 
+    width: 80%;
+}
+
+.result-form{
+        width: 40%;
+}
+.result-form fieldset{
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+.data{
+    width: 40%;
+}
+.data-text{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    border: 2px solid black;
+    width:70%;
+    margin: auto;
+    padding-right: 0px;
+}
+.data-text p{
+    display:inline-block;
+    margin: auto;
+
+}
+.data-text h2{
+    display:inline-block;
+    margin: auto;
+}
