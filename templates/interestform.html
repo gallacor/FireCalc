@@ -13,28 +13,28 @@
     <fieldset>
         <legend>Contributions</legend>
             <p>
-                <input type="number" name="starting_value" id="starting_value">
+                <input type="number" name="starting_value" id="starting_value" required>
                 <label for="starting_value">Starting Account Value</label>
             </p>
             <p>
-                <input type="number" name="monthly_cont" id="monthly_cont">
+                <input type="number" name="monthly_cont" id="monthly_cont" required>
                 <label for="monthly_cont">Monthly Contribution</label>
             </p>
             <p>
-                <input type="number" name="additional_cont" id="additional_cont">
+                <input type="number" name="additional_cont" id="additional_cont" required>
                 <label for="monthly_cont">Additional Contributions</label>
             </p>
     </fieldset>
     <fieldset>
         <legend>Goals and Assumptions</legend>
             <p>
-                <input type="number" name="interest_rate" id="interest_rate">
+                <input type="number" name="interest_rate" id="interest_rate" required>
                 <label for="interest_rate">Interest rate predicted</label>
             </p>
             <p>
-                <input type="number" name="goal_amount" id="goal_amount">
+                <input type="number" name="goal_amount" id="goal_amount" required>
                 <label for="goal_amount">Goal Amount of Savings</label>
-                <select id="goal_type" name="goal_type">
+                <select id="goal_type" name="goal_type" required>
                     <option value="income">Yearly Income</option>
                     <option value="lump_sum">Lump Sum</option>
                 </select>
