@@ -2,9 +2,20 @@ from flask import Flask, render_template, request, url_for
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plotter
-
+from flask_sqlalchemy import SQLAlchemy
+from write_db import UserPlan
 
 app = Flask(__name__, template_folder="templates")
+
+# the name of the database; add path if necessary
+db_name = 'retirementplans.db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_name
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+
+# this variable, db, will be used for all SQLAlchemy commands
+db = SQLAlchemy(app)
 
 @app.route("/home")
 def test():
@@ -17,23 +28,28 @@ def home():
     return render_template("interestform.html")
 
 
-@app.route("/result", methods=['POST', 'GET'])
+@app.route("/add_plan", methods=['POST', 'GET'])
 def provide_time():
     if request.method == 'POST':
-        goal_type = str(request.form['goal_type'])
-        int_rate = int(request.form['interest_rate'])
-        starting_balance = int(request.form['starting_value'])
-        monthly_cont = int(request.form['monthly_cont'])
-        additional_cont = int(request.form['additional_cont'])
-        goal = int(request.form['goal_amount'])
+        #initialize variables and calc  object
+        goal_type, int_rate = str(request.form['goal_type']), int(request.form['interest_rate'])
+        starting_balance, monthly_cont = int(request.form['starting_value']), int(request.form['monthly_cont'])
+        additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
         calc = Calc(starting_balance, int_rate, monthly_cont, additional_cont,goal_type, goal)
-        answer = calc.goal_type_handler()
-        interest_and_cont = calc.contribution_vs_interest(answer[0])
-        plot = calc.create_chart_by_year(answer[1])
+        calc.create_chart_by_year(calc.result_calc[1])
+
+        # add data to db
+        new_plan = UserPlan(calc)
+        try:
+            db.session.add(new_plan)
+            db.session.commit()
+        except:
+            return "There was an error adding your plan"
+        # return result page
         return render_template('formresult.html', starting_value=starting_balance, int_rate=int_rate,
                                monthly_cont=monthly_cont, additional_cont=additional_cont, goal=goal,
-                               goal_reached=answer[0], interest_earned=interest_and_cont[0], total_cont=interest_and_cont[1])
-
+                               goal_reached=calc.result_calc[0], interest_earned=round(calc.interest_earned,2),
+                               total_cont=calc.total_contributions)
 
 
 class Calc:
@@ -47,6 +63,7 @@ class Calc:
         self.interest_earned = 0
         self.goal_type = goal_type
         self.total_contributions = 0
+        self.result_calc = self.goal_type_handler()
 
     def goal_type_handler(self):
         if self.goal_type == "income":
@@ -95,10 +112,8 @@ class Calc:
         :return: interest earned and amount earned during the model
         """
         number_of_months = float(time) * 12
-        contributions = number_of_months * self.monthly_cont
-        interest_earned = self.goal - contributions
-        interest_and_cont = [interest_earned, contributions]
-        return interest_and_cont
+        self.total_contributions = number_of_months * self.monthly_cont
+        self.interest_earned = round(self.goal - self.total_contributions, 2)
 
     def amount_at_goal_year(self):
         time = self.goal - 2021
