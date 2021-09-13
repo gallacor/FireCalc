@@ -68,7 +68,7 @@ def db_operations():
         if 'delete-btn' in request.form:
             return delete_plan()
         else:
-            return update_plan()
+            return update_plan_submit()
 
 def delete_plan():
     plan_id = request.form['delete-btn']
@@ -77,16 +77,21 @@ def delete_plan():
     rows = UserPlan.query.order_by(UserPlan.time_created)
     return render_template('view_db.html', rows=rows)
 
-def update_plan():
-    if request.method == "POST":
-        plan_id = request.form['update-btn']
-        plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id)
-        return render_template('updateplan.html', plan_to_edit=plan_to_edit)
 
 def update_plan_submit():
-    if request.method == "POST":
+    plan_id = request.form['update-btn']
+    plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id).first()
+    return render_template('updateplan.html', plan_to_edit = plan_to_edit)
 
-       #get form data and calculate all needed values
+
+def view_db():
+    rows = UserPlan.query.order_by(UserPlan.time_created)
+    return render_template('view_db.html', rows=rows)
+
+
+@app.route('/updateplan', methods=['GET', 'POST'])
+
+def update_plan():
         goal_type, int_rate = str(request.form['goal_type']), int(request.form['interest_rate'])
         starting_balance, monthly_cont = int(request.form['starting_value']), int(request.form['monthly_cont'])
         additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
@@ -105,6 +110,8 @@ def update_plan_submit():
         plan_to_edit.goal_type = updated_plan.goal_type
         plan_to_edit.total_contributions = updated_plan.total_contributions
         plan_to_edit.years_to_retire = updated_plan.result_calc[0]
+        db.session.commit()
+        return view_db()
 
 
 
@@ -112,9 +119,7 @@ def update_plan_submit():
 
 
 
-def view_db():
-    rows = UserPlan.query.order_by(UserPlan.time_created)
-    return render_template('view_db.html', rows=rows)
+
 
 
 @app.route("/add_plan", methods=['POST', 'GET'])

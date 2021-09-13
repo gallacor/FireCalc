@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class='container'>
-<form class="result-form" action="{{ url_for('update_plan_submit') }}" method = "POST">
+<form class="result-form" action="{{ url_for('update_plan') }}" method = "POST">
     <fieldset>
         <legend>Contributions</legend>
             <p>
@@ -38,7 +38,7 @@
                 </select>
             </p>
     </fieldset>
-    <button type="submit" value="{{plan_to_edit.plan_id}}" name="update-btn">Calculate My Time to Retirement</button>
+    <button type="submit" name="update-btn">Calculate My Time to Retirement</button>
 </form>
 <section class='data'>
     <div class='data-text'>
