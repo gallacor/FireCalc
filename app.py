@@ -3,7 +3,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plotter
 from flask_sqlalchemy import SQLAlchemy
-from write_db import UserPlan
+from datetime import datetime
 
 app = Flask(__name__, template_folder="templates")
 
@@ -17,6 +17,38 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # this variable, db, will be used for all SQLAlchemy commands
 db = SQLAlchemy(app)
 
+
+# Create UserPlan table
+class UserPlan(db.Model):
+    __tablename__ = 'user_plans'
+    plan_id = db.Column(db.Integer, primary_key=True)
+    starting_bal = db.Column(db.Integer)
+    cur_balance = db.Column(db.Integer)
+    int_rate = db.Column(db.Float)
+    monthly_cont = db.Column(db.Integer)
+    extra_cont = db.Column(db.Integer)
+    goal = db.Column(db.Integer)
+    interest_earned = db.Column(db.Integer)
+    goal_type = db.Column(db.String)
+    total_contributions = db.Column(db.Integer)
+    years_to_retire = db.Column(db.String)
+    time_created = db.Column(db.DateTime, default = datetime.utcnow)
+
+    def __init__(self, calc):
+        self.starting_bal = calc.starting_bal
+        self.cur_balance = calc.cur_balance
+        self.int_rate = calc.int_rate
+        self.monthly_cont = calc.monthly_cont
+        self.extra_cont = calc.extra_cont
+        self.goal = calc.goal
+        self.interest_earned = round(calc.interest_earned, 2)
+        self.goal_type = calc.goal_type
+        self.total_contributions = calc.total_contributions
+        self.years_to_retire = calc.result_calc[0]
+
+
+db.create_all()
+
 @app.route("/home")
 def test():
     print("Testing Testing")
@@ -26,6 +58,20 @@ def test():
 @app.route("/", methods=['GET'])
 def home():
     return render_template("interestform.html")
+
+@app.route("/view_database" , methods=['GET'])
+def view_db():
+    rows = UserPlan.query.order_by(UserPlan.time_created)
+    for row in rows:
+        pass
+    return render_template('view_db.html', rows=rows)
+
+def update_plan():
+    pass
+
+def delete_plan():
+    pass
+
 
 
 @app.route("/add_plan", methods=['POST', 'GET'])
@@ -38,13 +84,11 @@ def provide_time():
         calc = Calc(starting_balance, int_rate, monthly_cont, additional_cont,goal_type, goal)
         calc.create_chart_by_year(calc.result_calc[1])
 
-        # add data to db
         new_plan = UserPlan(calc)
-        try:
-            db.session.add(new_plan)
-            db.session.commit()
-        except:
-            return "There was an error adding your plan"
+        print(new_plan.years_to_retire)
+        db.session.add(new_plan)
+        db.session.commit()
+
         # return result page
         return render_template('formresult.html', starting_value=starting_balance, int_rate=int_rate,
                                monthly_cont=monthly_cont, additional_cont=additional_cont, goal=goal,
@@ -64,6 +108,7 @@ class Calc:
         self.goal_type = goal_type
         self.total_contributions = 0
         self.result_calc = self.goal_type_handler()
+
 
     def goal_type_handler(self):
         if self.goal_type == "income":
@@ -125,6 +170,9 @@ class Calc:
         nest_egg_needed = self.goal * 25
         self.goal = nest_egg_needed
         return self.years_to_goal()
+
+    def add_to_csv(self):
+        pass
 
     def create_chart_by_year(self, ending_data):
         if self.goal != 0:

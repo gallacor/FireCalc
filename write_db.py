@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plotter
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import text
-from datetime import date
+from datetime import datetime
 
 app = Flask(__name__, template_folder="templates")
 
@@ -33,8 +33,8 @@ class UserPlan(db.Model):
     interest_earned = db.Column(db.Integer)
     goal_type = db.Column(db.Integer)
     total_contributions = db.Column(db.Integer)
-    years_to_retire = db.Column(db.Float)
-    money_at_retirement = db.Column(db.Integer)
+    years_to_retire = db.Column(db.String)
+    time_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, calc):
         self.starting_bal = calc.starting_bal
@@ -46,7 +46,7 @@ class UserPlan(db.Model):
         self.interest_earned = calc.interest_earned
         self.goal_type = calc.goal_type
         self.total_contributions = calc.total_contributions
-        self.result_calc = calc.result_calc
+        self.years_to_retire = calc.result_calc
 
 
 

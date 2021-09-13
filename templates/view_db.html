@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel='stylesheet' href='static/styles.css'>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <thead>
+    <th>Starting Balance</th>
+    <th>Interest Rate</th>
+    <th>Monthly Contribution</th>
+    <th>Additional COntribution</th>
+    <th>Goal Amount</th>
+    <th>Interest Earned</th>
+    <th>Goal Type</th>
+    <th>Total Contributions</th>
+    <th>Years to retire</th>
+    <th>Update Plan</th>
+    <th>Delete Plan</th>
+    </thead>
+    {% for row in rows %}
+    <tr>
+        <td>{{row.starting_bal}}</td>
+        <td>{{row.int_rate}}</td>
+        <td>{{row.monthly_cont}}</td>
+        <td>{{row.extra_cont}}</td>
+        <td>{{row.goal}}</td>
+        <td>{{row.interest_earned}}</td>
+        <td>{{row.goal_type}}</td>
+        <td>{{row.total_contributions}}</td>
+        <td>{{row.years_to_retire}}<td>
+        <td><button>Edit</button></td>
+        <td><button>Delete</button></td>
+
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
