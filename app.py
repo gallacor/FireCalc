@@ -59,19 +59,62 @@ def test():
 def home():
     return render_template("interestform.html")
 
-@app.route("/view_database" , methods=['GET'])
-def view_db():
+
+@app.route("/view_database", methods=['GET', 'POST'])
+def db_operations():
+    if request.method == 'GET':
+        return view_db()
+    elif request.method == 'POST':
+        if 'delete-btn' in request.form:
+            return delete_plan()
+        else:
+            return update_plan()
+
+def delete_plan():
+    plan_id = request.form['delete-btn']
+    UserPlan.query.filter(UserPlan.plan_id == plan_id).delete()
+    db.session.commit()
     rows = UserPlan.query.order_by(UserPlan.time_created)
-    for row in rows:
-        pass
     return render_template('view_db.html', rows=rows)
 
 def update_plan():
-    pass
+    if request.method == "POST":
+        plan_id = request.form['update-btn']
+        plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id)
+        return render_template('updateplan.html', plan_to_edit=plan_to_edit)
 
-def delete_plan():
-    pass
+def update_plan_submit():
+    if request.method == "POST":
 
+       #get form data and calculate all needed values
+        goal_type, int_rate = str(request.form['goal_type']), int(request.form['interest_rate'])
+        starting_balance, monthly_cont = int(request.form['starting_value']), int(request.form['monthly_cont'])
+        additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
+        updated_plan = Calc(starting_balance, int_rate, monthly_cont, additional_cont, goal_type, goal)
+
+        #updatte attributtes of original_record
+        plan_id = request.form['update-btn']
+        plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id)
+        plan_to_edit.starting_bal = updated_plan.starting_bal
+        plan_to_edit.cur_balance = updated_plan.cur_balance
+        plan_to_edit.int_rate = updated_plan.int_rate
+        plan_to_edit.monthly_cont = updated_plan.monthly_cont
+        plan_to_edit.extra_cont = updated_plan.extra_cont
+        plan_to_edit.goal = updated_plan.goal
+        plan_to_edit.interest_earned = round(updated_plan.interest_earned, 2)
+        plan_to_edit.goal_type = updated_plan.goal_type
+        plan_to_edit.total_contributions = updated_plan.total_contributions
+        plan_to_edit.years_to_retire = updated_plan.result_calc[0]
+
+
+
+
+
+
+
+def view_db():
+    rows = UserPlan.query.order_by(UserPlan.time_created)
+    return render_template('view_db.html', rows=rows)
 
 
 @app.route("/add_plan", methods=['POST', 'GET'])
@@ -83,9 +126,7 @@ def provide_time():
         additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
         calc = Calc(starting_balance, int_rate, monthly_cont, additional_cont,goal_type, goal)
         calc.create_chart_by_year(calc.result_calc[1])
-
         new_plan = UserPlan(calc)
-        print(new_plan.years_to_retire)
         db.session.add(new_plan)
         db.session.commit()
 
