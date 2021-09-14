@@ -101,6 +101,7 @@ def update_plan():
     additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
     updated_plan = Calc(starting_bal, int_rate, monthly_cont, additional_cont, goal_type, goal)
 
+
     #updatte attributtes of original_record
     plan_id_now = int(request.form['update-btn'])
     plan_to_edit = UserPlan.query.get(plan_id_now)
@@ -117,14 +118,6 @@ def update_plan():
     db.session.commit()
     rows = UserPlan.query.order_by(UserPlan.time_created)
     return render_template('view_db.html', rows=rows)
-
-
-
-
-
-
-
-
 
 
 @app.route("/add_plan", methods=['POST', 'GET'])
