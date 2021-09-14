@@ -11,7 +11,7 @@
     <fieldset>
         <legend>Contributions</legend>
             <p>
-                <input type="number" name="starting_value" id="starting_value" value="{{plan_to_edit.starting_bal}}">
+                <input type="number" name="starting_bal" id="starting_value" value="{{plan_to_edit.starting_bal}}">
                 <label for="starting_value">Starting Account Value</label>
             </p>
             <p>
@@ -26,11 +26,11 @@
     <fieldset>
         <legend>Goals and Assumptions</legend>
             <p>
-                <input type="number" name="interest_rate" id="interest_rate" value="{{plan_to_edit.int_rate}}">
+                <input type="number" name="interest_rate" id="interest_rate" value="{{ interest_rate }}">
                 <label for="interest_rate">Interest rate predicted</label>
             </p>
             <p>
-                <input type="number" name="goal_amount" id="goal_amount" value="{{plan_to_edit.goal}}">
+                <input type="number" name="goal_amount" id="goal_amount" value="{{goal}}">
                 <label for="goal_amount">Goal Amount of Savings</label>
                 <select id="goal_type" name="goal_type" default="{{plan_to_edit.goal_type}}">
                     <option value="income">Yearly Income</option>

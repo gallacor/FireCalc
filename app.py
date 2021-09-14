@@ -4,6 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plotter
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import math
 
 app = Flask(__name__, template_folder="templates")
 
@@ -24,7 +25,7 @@ class UserPlan(db.Model):
     plan_id = db.Column(db.Integer, primary_key=True)
     starting_bal = db.Column(db.Integer)
     cur_balance = db.Column(db.Integer)
-    int_rate = db.Column(db.Float)
+    int_rate = db.Column(db.Integer)
     monthly_cont = db.Column(db.Integer)
     extra_cont = db.Column(db.Integer)
     goal = db.Column(db.Integer)
@@ -37,7 +38,7 @@ class UserPlan(db.Model):
     def __init__(self, calc):
         self.starting_bal = calc.starting_bal
         self.cur_balance = calc.cur_balance
-        self.int_rate = calc.int_rate
+        self.int_rate = int(calc.int_rate * 100)
         self.monthly_cont = calc.monthly_cont
         self.extra_cont = calc.extra_cont
         self.goal = calc.goal
@@ -79,9 +80,13 @@ def delete_plan():
 
 
 def update_plan_submit():
-    plan_id = request.form['update-btn']
-    plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id).first()
-    return render_template('updateplan.html', plan_to_edit = plan_to_edit)
+    plan_id_now = int(request.form['update-btn'])
+    plan_to_edit = UserPlan.query.get(plan_id_now)
+    interest_rate = math.ceil(int(plan_to_edit.int_rate *100))
+    goal = plan_to_edit.goal
+    if plan_to_edit.goal_type == "income":
+        goal = plan_to_edit.goal/25
+    return render_template('updateplan.html', plan_to_edit = plan_to_edit, interest_rate=interest_rate, goal=goal)
 
 
 def view_db():
@@ -90,28 +95,28 @@ def view_db():
 
 
 @app.route('/updateplan', methods=['GET', 'POST'])
-
 def update_plan():
-        goal_type, int_rate = str(request.form['goal_type']), int(request.form['interest_rate'])
-        starting_balance, monthly_cont = int(request.form['starting_value']), int(request.form['monthly_cont'])
-        additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
-        updated_plan = Calc(starting_balance, int_rate, monthly_cont, additional_cont, goal_type, goal)
+    goal_type, int_rate = str(request.form['goal_type']), int(request.form['interest_rate'])
+    starting_bal, monthly_cont = int(request.form['starting_bal']), int(request.form['monthly_cont'])
+    additional_cont,  goal = int(request.form['additional_cont']),  int(request.form['goal_amount'])
+    updated_plan = Calc(starting_bal, int_rate, monthly_cont, additional_cont, goal_type, goal)
 
-        #updatte attributtes of original_record
-        plan_id = request.form['update-btn']
-        plan_to_edit = UserPlan.query.filter(UserPlan.plan_id == plan_id)
-        plan_to_edit.starting_bal = updated_plan.starting_bal
-        plan_to_edit.cur_balance = updated_plan.cur_balance
-        plan_to_edit.int_rate = updated_plan.int_rate
-        plan_to_edit.monthly_cont = updated_plan.monthly_cont
-        plan_to_edit.extra_cont = updated_plan.extra_cont
-        plan_to_edit.goal = updated_plan.goal
-        plan_to_edit.interest_earned = round(updated_plan.interest_earned, 2)
-        plan_to_edit.goal_type = updated_plan.goal_type
-        plan_to_edit.total_contributions = updated_plan.total_contributions
-        plan_to_edit.years_to_retire = updated_plan.result_calc[0]
-        db.session.commit()
-        return view_db()
+    #updatte attributtes of original_record
+    plan_id_now = int(request.form['update-btn'])
+    plan_to_edit = UserPlan.query.get(plan_id_now)
+    plan_to_edit.starting_bal = updated_plan.starting_bal
+    plan_to_edit.cur_balance = updated_plan.cur_balance
+    plan_to_edit.int_rate = updated_plan.int_rate
+    plan_to_edit.monthly_cont = updated_plan.monthly_cont
+    plan_to_edit.extra_cont = updated_plan.extra_cont
+    plan_to_edit.goal = updated_plan.goal
+    plan_to_edit.interest_earned = round(updated_plan.interest_earned, 2)
+    plan_to_edit.goal_type = updated_plan.goal_type
+    plan_to_edit.total_contributions = updated_plan.total_contributions
+    plan_to_edit.years_to_retire = updated_plan.result_calc[0]
+    db.session.commit()
+    rows = UserPlan.query.order_by(UserPlan.time_created)
+    return render_template('view_db.html', rows=rows)
 
 
 
