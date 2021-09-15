@@ -82,15 +82,18 @@ def delete_plan():
 def update_plan_submit():
     plan_id_now = int(request.form['update-btn'])
     plan_to_edit = UserPlan.query.get(plan_id_now)
-    interest_rate = math.ceil(int(plan_to_edit.int_rate *100))
-    goal = plan_to_edit.goal
+    plan_to_edit.int_rate = convert_int_rate_for_display(plan_to_edit.int_rate)
+    goal = int(round(plan_to_edit.goal))
     if plan_to_edit.goal_type == "income":
-        goal = plan_to_edit.goal/25
-    return render_template('updateplan.html', plan_to_edit = plan_to_edit, interest_rate=interest_rate, goal=goal)
+        goal = int(plan_to_edit.goal/25)
+    return render_template('updateplan.html', plan_to_edit = plan_to_edit, goal=goal)
 
 
 def view_db():
     rows = UserPlan.query.order_by(UserPlan.time_created)
+    # convert interest rate to correct display  format
+    for row in rows:
+        row.int_rate = convert_int_rate_for_display(row.int_rate)
     return render_template('view_db.html', rows=rows)
 
 
@@ -116,8 +119,7 @@ def update_plan():
     plan_to_edit.total_contributions = updated_plan.total_contributions
     plan_to_edit.years_to_retire = updated_plan.result_calc[0]
     db.session.commit()
-    rows = UserPlan.query.order_by(UserPlan.time_created)
-    return render_template('view_db.html', rows=rows)
+    return view_db()
 
 
 @app.route("/add_plan", methods=['POST', 'GET'])
@@ -138,7 +140,9 @@ def provide_time():
                                monthly_cont=monthly_cont, additional_cont=additional_cont, goal=goal,
                                goal_reached=calc.result_calc[0], interest_earned=round(calc.interest_earned,2),
                                total_cont=calc.total_contributions)
-
+def convert_int_rate_for_display(int_rate):
+    int_rate = int(round((int_rate + .02) * 100))
+    return int_rate
 
 class Calc:
     def __init__(self, starting_bal, int_rate, monthly_cont, extra_cont, goal_type, goal=0):
@@ -152,6 +156,7 @@ class Calc:
         self.goal_type = goal_type
         self.total_contributions = 0
         self.result_calc = self.goal_type_handler()
+
 
 
     def goal_type_handler(self):

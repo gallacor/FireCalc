@@ -20,6 +20,7 @@
     <th>Update Plan</th>
     <th>Delete Plan</th>
     </thead>
+    <tbody>
     {% for row in rows %}
     <tr>
         <td>{{row.starting_bal}}</td>
@@ -30,14 +31,12 @@
         <td>{{row.interest_earned}}</td>
         <td>{{row.goal_type}}</td>
         <td>{{row.total_contributions}}</td>
-        <td>{{row.years_to_retire}}<td>
-
+        <td>{{row.years_to_retire}}</td>
         <td><form action="{{ url_for('db_operations') }}" method="POST"><button type="submit"  name="update-btn" value="{{row.plan_id}}">Edit</button></form></td>
-
         <td><form action="{{ url_for('db_operations') }}"  method="POST"><button type="submit"  name="delete-btn" value="{{row.plan_id}}">Delete</button></form></td>
-
     </tr>
     {% endfor %}
+    </tbody>
 </table>
 </body>
 </html>
