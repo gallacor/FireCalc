@@ -38,7 +38,7 @@ class UserPlan(db.Model):
     def __init__(self, calc):
         self.starting_bal = calc.starting_bal
         self.cur_balance = calc.cur_balance
-        self.int_rate = int(calc.int_rate * 100)
+        self.int_rate = calc.int_rate
         self.monthly_cont = calc.monthly_cont
         self.extra_cont = calc.extra_cont
         self.goal = calc.goal
@@ -91,10 +91,14 @@ def update_plan_submit():
 
 def view_db():
     rows = UserPlan.query.order_by(UserPlan.time_created)
+    count_of_rows = 0
     # convert interest rate to correct display  format
     for row in rows:
-        row.int_rate = convert_int_rate_for_display(row.int_rate)
-    return render_template('view_db.html', rows=rows)
+        if type(row.int_rate) is not int():
+            row.int_rate = convert_int_rate_for_display(row.int_rate)
+        count_of_rows += 1
+    print(rows)
+    return render_template('view_db.html', rows=rows, count_of_rows=count_of_rows)
 
 
 @app.route('/updateplan', methods=['GET', 'POST'])

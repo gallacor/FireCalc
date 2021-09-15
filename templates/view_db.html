@@ -6,6 +6,10 @@
     <title>Title</title>
 </head>
 <body>
+    {% if count_of_rows == 0 %}
+    <h1 class="empty-db">The Database is empty please click <a href="/">here</a> to add a new plan</h1>
+
+    {% else %}
 <table>
     <thead>
     <th>Starting Balance</th>
@@ -38,5 +42,7 @@
     {% endfor %}
     </tbody>
 </table>
+    <button class="nav-button"><a href="/">Add New Plan</a></button>
+    {% endif %}
 </body>
 </html>
